@@ -1,0 +1,31 @@
+<div *ngIf="generatedId === ''" class="upload d-flex flex-column justify-content-center align-items-center align-content-center vh-100">
+  <div class="d-flex flex-column justify-content-center align-content-center align-items-center w-50 text-center" *ngIf="uploading">
+    <ng-container *ngIf="progress !== 100">
+      <span *ngIf="progress > 0" class="font-monospace">{{progress+'%'}}</span>
+      <mat-progress-bar class="mb-5 w-50" mode="determinate" [value]="progress"></mat-progress-bar>
+      <img ngSrc="uploadIcon.png" loading="eager" width="136" height="90" class="scale-animation-1">
+      <h2 class="text-primary text-animation font-monospace fs-5 mt-3" >Please wait</h2>
+    </ng-container>
+  </div>
+
+  <form *ngIf="!uploading" class="d-flex flex-column justify-content-center align-content-center align-items-center w-50" (submit)="uploadVideo($event)">
+    <h2 class="mb-2">Click to start uploading.</h2>
+    <input id="fileInput" type="file" (change)="selectFile($event)" accept="video/*" style="display: none" #fileInput>
+    <button class="btn btn-primary" (click)="fileInput.click()"
+            matTooltip="Click to start the upload"
+    >Upload your video!</button>
+    <button #uploadBtn type="submit" style="display:none">Upload</button>
+  </form>
+</div>
+<div *ngIf="generatingThumbnails" class="d-flex flex-column justify-content-center align-items-center align-content-center vh-100">
+  <ng-container >
+    <mat-spinner></mat-spinner>
+    <h5 class="font-monospace mt-5" >Video has been uploaded and is now being processed.</h5>
+    <h5 class="font-monospace fs-2">Generating Thumbnails...</h5>
+  </ng-container>
+</div>
+
+<router-outlet></router-outlet>
+
+
+

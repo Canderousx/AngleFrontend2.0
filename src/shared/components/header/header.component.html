@@ -1,0 +1,95 @@
+<mat-toolbar class="toolbar bg-dark text-white">
+  <img style="cursor: pointer" routerLink="" class="ml-2 scalable" ngSrcset="142w" ngSrc="logoNoBG.png" width="142" height="45" priority >
+  <span class="example-spacer"></span>
+
+    <div class="col-md-5 mx-auto">
+      <form (ngSubmit)="submitSearch()" [formGroup]="search">
+        <div class="input-group">
+          <input [formControl]="search.controls.query" class="searcher form-control border rounded-pill" type="search" value="" placeholder="Find more Angles!..." id="searcher"
+          [matAutocomplete]="auto">
+          <mat-autocomplete #auto = "matAutocomplete" (optionSelected)="onOptionSelected($event)">
+            <mat-option appMouseEnter *ngFor="let option of filteredOptions | async" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+          <button [disabled]="search.invalid" type="submit" mat-icon-button appMouseEnter>
+            <mat-icon>search</mat-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+  <div class="header-buttons">
+    <div class="dropdown" *ngIf="currentUser">
+      <button class="tButton" type="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="refreshNotifications()">
+        <mat-icon appMouseEnter>vpn_lock</mat-icon>
+        <span class="unseen-alert" *ngIf="unseenNotifications > 0">
+          <span>
+            {{unseenNotifications}}
+          </span>
+        </span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-dark">
+        <div class="notifications-header">
+          <span>Notifications</span>
+          <span class="span-btn mx-2" *ngIf="notifications.length > 0" (click)="clearAll($event)" appMouseEnter>clear all</span>
+        </div>
+        <mat-divider></mat-divider>
+        <ng-container class="notification" *ngIf="notifications && notifications.length > 0; else noNotifications">
+          <button class="notification-btn dropdown-item" [ngClass]="notification.seen ? 'seen' : 'unseen'" *ngFor="let notification of notifications, index as i" (click)="onNotificationClick(notification.url)" (mouseenter)="markAsSeen(i,notification.seen)">
+            <div class="notification-body">
+              <mat-icon *ngIf="!notification.image">notifications</mat-icon>
+              <div class="text-center">
+                <img class="img-thumbnail-smallest mx-1" *ngIf="notification.image" src="{{environment.backendUrl+notification.image}}">
+              </div>
+              <span class="notification-title">{{ notification.title }}</span>
+              <span class="notification-date">{{notification.datePublished | dateFormatShort}}</span>
+            </div>
+          </button>
+        </ng-container>
+        <ng-template #noNotifications class="no-notification">
+          <button disabled mat-button class="d-flex flex-row justify-content-center">
+            <mat-icon>info</mat-icon>
+            <span style="color: #b8b8b8">You've no notifications</span>
+          </button>
+        </ng-template>
+      </ul>
+    </div>
+    <button *ngIf="currentUser" routerLink="/upload" appMouseEnter class="tButton">
+      <mat-icon>cloud_upload</mat-icon>
+    </button>
+    <button *ngIf="currentUser" appMouseEnter (click)="myChannel()" class="tButton">
+      <mat-icon (click)="myChannel()">live_tv</mat-icon>
+    </button>
+
+    <button [matMenuTriggerFor]="menu" appMouseEnter mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu = "matMenu">
+      <button (click)="signin()" appMouseEnter mat-menu-item *ngIf="!currentUser">
+        <mat-icon>dialpad</mat-icon>
+        <span>Sign In</span>
+      </button>
+      <button routerLink="/signup" appMouseEnter mat-menu-item *ngIf="!currentUser">
+        <mat-icon>voicemail</mat-icon>
+        <span>Sign up</span>
+      </button>
+      <button (click)="adminPanel()" appMouseEnter mat-menu-item *ngIf="currentUser && currentUser.admin">
+        <mat-icon>gavel</mat-icon>
+        <span>Admin Panel</span>
+      </button>
+      <button (click)="myChannel()" appMouseEnter mat-menu-item *ngIf="currentUser">
+        <mat-icon>live_tv</mat-icon>
+        <span>My Channel</span>
+      </button>
+      <button routerLink="/settings" appMouseEnter mat-menu-item *ngIf="currentUser">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <button (click)="logout()" appMouseEnter mat-menu-item *ngIf="currentUser">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+
+</mat-toolbar>

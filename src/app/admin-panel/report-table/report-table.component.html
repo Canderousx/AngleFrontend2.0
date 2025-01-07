@@ -1,0 +1,45 @@
+<div class="manager-window p-2">
+  <div>
+    <mat-paginator style="background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);" [length]="allReports"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="[5,10,15,20,40,80]"
+                   aria-label="Select page"
+                   (page)="pageSwitcher($event)"
+    ></mat-paginator>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th appMouseEnter scope="col" id="reporterName" (click)="changeSort($event)" style="cursor: pointer">Reported by</th>
+        <th appMouseEnter scope="col" id="type" (click)="changeSort($event)" style="cursor: pointer">Type</th>
+        <th appMouseEnter scope="col" id="category" (click)="changeSort($event)" style="cursor: pointer">Category</th>
+        <th appMouseEnter scope="col" id="datePublished" (click)="changeSort($event)" style="cursor: pointer">Submitted on</th>
+        <th *ngIf="!url.includes('unresolved')" appMouseEnter scope="col" id="solution" (click)="changeSort($event)" style="cursor: pointer">Solution</th>
+        <th *ngIf="!url.includes('unresolved')" appMouseEnter scope="col" id="resolved_by" (click)="changeSort($event)" style="cursor: pointer">Resolved by</th>
+        <th *ngIf="!url.includes('unresolved')" appMouseEnter scope="col" id="date_resolved" (click)="changeSort($event)" style="cursor: pointer">Resolved on</th>
+        <th scope="col">...</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let report of reports, index as i">
+        <th scope="row">{{i+1}}</th>
+        <td>{{report.reporterName}}</td>
+        <td>{{report.type}}</td>
+        <td>{{report.category}}</td>
+        <td>{{report.datePublished | simpleDate}}</td>
+        <td *ngIf="!url.includes('unresolved')">{{report.solution}}</td>
+        <td *ngIf="!url.includes('unresolved')">{{report.resolvedBy}}</td>
+        <td *ngIf="!url.includes('unresolved')">{{report.dateResolved | dateFormat}}</td>
+        <td>
+          <button (click)="viewReport(report)" class="btn btn-primary btn-sm mx-1">View</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<app-modal *ngIf="openModal" (closeModal)="closeView()">
+  <app-view-report [report]="reportToView" (solved)="refreshCases($event)"></app-view-report>
+</app-modal>
+
+

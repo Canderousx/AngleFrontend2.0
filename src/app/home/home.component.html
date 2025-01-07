@@ -1,0 +1,17 @@
+<div *ngIf="loaded" class="homeWindow d-flex flex-column justify-content-center align-items-center align-content-center">
+  <div class="text-center">
+    <h2 class="mt-3">Most Popular</h2>
+    <app-feed [videosList]="mostPopular" [flexDirection]="'flex-row'" [mainClass]="'videoMiniature-home'"></app-feed>
+    <mat-divider class="mt-2"></mat-divider>
+  </div>
+  <div *ngIf="fromSubsVideos.length > 0" class="text-center">
+    <h2 class="mt-3">Your Subscriptions</h2>
+    <app-feed [videosList]="fromSubsVideos" [flexDirection]="'flex-row'" [mainClass]="'videoMiniature-home'"></app-feed>
+    <mat-divider class="mt-2"></mat-divider>
+  </div>
+  <div class="text-center">
+    <h2 class="mt-3">Latest Angles</h2>
+    <app-feed [videosList]="latestVideos" [flexDirection]="'flex-row'" [mainClass]="'videoMiniature-home'"></app-feed>
+  </div>
+
+</div>

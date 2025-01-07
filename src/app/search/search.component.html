@@ -1,0 +1,15 @@
+<div class="search-window d-flex flex-column justify-content-start align-content-center align-items-center w-100 vh-100">
+  <div class="search-controls d-flex align-items-start align-content-start justify-content-start w-100 mt-3">
+    <span>Results for: <b><i>{{query}}</i></b></span>
+  </div>
+  <div class="search-results d-flex flex-column justify-content-start align-content-start align-items-start w-100">
+    <app-feed [videosList]="results" [mainClass]="'videoMiniature-watch'" [flexDirection]="'flex-column'"></app-feed>
+<!--    <div *ngFor="let video of results, index as i" class="search-position d-flex justify-content-center align-items-center align-content-center flex-row  my-3 mx-5 w-50">-->
+<!--        <img class="img-thumbnail scalable" style="cursor: pointer" (click)="watch(video.id)" src="{{environment.getThumbnail(video.thumbnail)}}" width="200" height="auto">-->
+<!--      <div class=" d-flex flex-column justify-content-center align-items-center align-items-center w-100 h-100">-->
+<!--        <span appMouseEnter style="cursor: pointer" (click)="watch(video.id)">{{video.name}}</span>-->
+<!--        <span>{{video.datePublished}}</span>-->
+<!--      </div>-->
+<!--    </div>-->
+  </div>
+</div>

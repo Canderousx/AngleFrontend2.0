@@ -1,0 +1,21 @@
+<div class="container p-5 d-flex flex-column justify-content-center align-content-center align-items-center">
+  <form (submit)="submit()" [formGroup]="signForm" class="form text-center w-50">
+    <div class="mb-3">
+      <label for="email" class="form-label">Email Address</label>
+      <input id="email" class="form-control" type="email" name="email" matInput [formControl]="signForm.controls.email">
+      <span @fadeInOut class="error" *ngIf="signForm.controls.email.hasError('required') && !signForm.controls.email.untouched">
+        Email is required</span>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input id="password" class="form-control" type="password" name="password" matInput [formControl]="signForm.controls.password">
+      <span @fadeInOut class="error" *ngIf="signForm.controls.password.hasError('required') && !signForm.controls.password.untouched">
+        Password is required</span>
+    </div>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+      <button [disabled]="signForm.invalid" class="btn btn-primary mt-4" type="submit">Sign In</button>
+      <a class="mt-1" routerLink="/forgotPassword">forgot your password?</a>
+    </div>
+
+  </form>
+</div>

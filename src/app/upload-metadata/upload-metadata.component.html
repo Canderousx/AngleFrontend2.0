@@ -1,0 +1,74 @@
+<div *ngIf="thumbnails.length > 0" class="metaData-window d-flex flex-column justify-content-start align-items-center align-content-center mt-1 vh-100">
+  <div>
+    <h2>Video has been updated. Now tell us something about it.</h2>
+  </div>
+  <mat-stepper class="w-75" [linear]="false" #stepper>
+    <mat-step [stepControl]="metaName">
+      <form class="metadata-control" [formGroup]="metaName">
+        <ng-template matStepLabel>Name Your Video</ng-template>
+        <mat-form-field class="nameInput">
+          <mat-label>Name</mat-label>
+          <input [value]="metaName.controls.name.value" matInput placeholder="Your video name..." formControlName="name" required>
+          <mat-error *ngIf="metaName.get('name')?.hasError('required')">Name is required</mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="metaDesc">
+      <form class="metadata-control" [formGroup]="metaDesc">
+        <ng-template matStepLabel>Tell us more</ng-template>
+        <mat-form-field>
+          <mat-label>Description</mat-label>
+          <textarea [value]="metaDesc.controls.description.value" style="resize: none" rows="4" matInput placeholder="Tell us more about your video" formControlName="description" required></textarea>
+          <mat-error *ngIf="metaDesc.get('description')?.hasError('required')">Description is required</mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="metaTags">
+      <form class="metadata-control" [formGroup]="metaTags">
+        <ng-template matStepLabel>Tag Your Video</ng-template>
+        <mat-form-field>
+          <mat-label>Tags</mat-label>
+          <textarea [value]="metaTags.controls.tags.value" style="resize: none" rows="4" matInput placeholder="Separate each tag with ','" formControlName="tags" required></textarea>
+          <mat-error *ngIf="metaTags.get('tags')?.hasError('required')">Tags are required</mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="metaThumbnail">
+      <form class="metadata-control" [formGroup]="metaThumbnail">
+        <ng-template matStepLabel>Choose a Thumbnail</ng-template>
+        <div class="thumbnails d-flex flex-row justify-content-evenly align-items-center align-content-center">
+          <mat-radio-group class="d-flex flex-row" [formControl]="metaThumbnail.controls.thumbnail" required>
+            <div *ngFor="let thumbnail of thumbnails; index as i" class="d-flex flex-column justify-content-between align-content-center align-items-center">
+              <img class="img-thumbnail-smaller-w scalable mx-1" [ngClass]="{selected: metaThumbnail.controls.thumbnail.value === thumbnail}" (click)="selectThumbnail(thumbnail)"
+                   src="{{environment.backendUrl+thumbnail}}" [matTooltip]="'Select a thumbnail'">
+              <mat-radio-button [value]="thumbnail"></mat-radio-button>
+            </div>
+          </mat-radio-group>
+        </div>
+        <mat-error *ngIf="metaThumbnail.get('thumbnail')?.hasError('required')">Please choose a thumbnail!</mat-error>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button [disabled]="!metaThumbnail.valid || !metaTags.valid || !metaName.valid || !metaDesc.valid" (click)="submit()" mat-button>Save</button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>
+<ng-container *ngIf="thumbnails.length === 0">
+  <div class="font-monospace mt-5 d-flex flex-column justify-content-center align-content-center align-items-center vh-100">
+    <h1>Almost done...</h1>
+    <h5>Generating thumbnails...</h5>
+    <mat-spinner></mat-spinner>
+  </div>
+</ng-container>

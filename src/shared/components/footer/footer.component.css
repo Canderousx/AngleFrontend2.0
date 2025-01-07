@@ -1,0 +1,10 @@
+.container {
+  min-height: 100vh; /* Ustawia minimalną wysokość kontenera na 100% wysokości widocznej części okna przeglądarki */
+  display: flex;
+  flex-direction: column; /* Ustawia elementy w kontenerze w kolumnie */
+  justify-content: space-between; /* Rozkłada treść tak, aby footer był na dole */
+}
+
+footer {
+  flex-shrink: 0; /* Zapobiega zmniejszeniu rozmiaru footera */
+}

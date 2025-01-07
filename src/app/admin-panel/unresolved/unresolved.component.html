@@ -1,0 +1,4 @@
+<app-report-table *ngIf="reports" [reports]="reports" (changePage)="changePage($event)" (changeSortBy)="changeSortBy($event)" (refresh)="refresh($event)"
+                  [pageSize]="pageSize" [allReports]="allReports">
+</app-report-table>
+

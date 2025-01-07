@@ -1,0 +1,33 @@
+<div class="container p-5 d-flex flex-column justify-content-center align-content-center align-items-center">
+  <form (submit)="submit()" [formGroup]="signForm" class="form text-center w-50">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input id="username" class="form-control" type="text" name="username" matInput [formControl]="usernameControl">
+      <span @fadeInOut class="error" *ngIf="usernameControl.hasError('minlength') && !usernameControl.untouched">
+        Username should contain at least 4 characters!</span>
+      <span @fadeInOut class="error" *ngIf="usernameControl.hasError('usernameExists')">
+        Username already exists</span>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email Address</label>
+      <input id="email" class="form-control" type="email" name="email" matInput [formControl]="emailControl">
+      <span @fadeInOut class="error" *ngIf="emailControl.hasError('email') && !emailControl.untouched">
+        Please use correct email address</span>
+      <span @fadeInOut class="error" *ngIf="emailControl.hasError('emailExists')">
+        Account with that email exists</span>
+    </div>
+    <div class="mb-3">
+      <label for="date" class="form-label">Date of birth</label>
+      <input id="date" class="form-control" type="date" name="birthDate" matInput [formControl]="birthDateControl">
+      <span @fadeInOut class="error" *ngIf="birthDateControl.hasError('tooYoung') && !birthDateControl.untouched">
+        You should be at least 13yrs old to use Angle</span>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input id="password" class="form-control" type="password" name="password" matInput [formControl]="passwordControl">
+      <span @fadeInOut class="error" *ngIf="passwordControl.hasError('minlength') && !passwordControl.untouched">
+        Password should contain at least 8 characters</span>
+    </div>
+    <button [disabled]="signForm.invalid" class="btn btn-primary mt-4" type="submit">Sign In</button>
+  </form>
+</div>

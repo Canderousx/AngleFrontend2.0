@@ -1,0 +1,15 @@
+<ng-container *ngIf="avatarChange">
+  <app-avatar-change [userId]="user.id" (close)="closeChanger($event)"></app-avatar-change>
+</ng-container>
+<div class="settingsWindow d-flex justify-content-center flex-column align-content-center align-items-center m-5" *ngIf="user">
+  <h2>Account Panel</h2>
+  <div class="accountPanel d-flex flex-column justify-content-center align-items-center align-content-center">
+    <img (click)="toggleChanger()" id="avatar" class="avatar avatar-med" [src]="environment.getAvatar(user.id)" [matTooltip]="'Change avatar'">
+    <label class="mt-2" for="avatar">{{user.username}}</label>
+    <div class="buttons d-flex flex-row justify-content-center align-content-center align-items-center mt-5">
+      <button class="btn btn-primary btn-sm mx-2">My angles</button>
+      <button class="btn btn-primary btn-sm mx-2">Change password</button>
+      <button class="btn btn-danger btn-sm mx-2">Delete account</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+<div class="app-body">
+  <app-header></app-header>
+  <app-alert @fadeInOut *ngIf="alert.length == 2" [alert]="alert"></app-alert>
+  <router-outlet></router-outlet>
+</div>
+<app-footer class="footer"></app-footer>

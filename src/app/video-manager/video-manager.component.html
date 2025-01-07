@@ -1,0 +1,46 @@
+<div class="manager-window">
+  <div *ngIf="accountVideos.length > 0">
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col">Date Published</th>
+        <th scope="col">Views</th>
+        <th scope="col">...</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of accountVideos, index as i">
+        <th scope="row">{{i+1}}</th>
+        <td><img class="img-thumbnail-small" src="{{environment.getThumbnail(v.thumbnail)}}"></td>
+        <td>
+          <a *ngIf="!v.processing" style="text-decoration: none; color: black" appMouseEnter href="{{'watch?v='+v.id}}" target="_blank">{{v.name}}</a>
+          <span *ngIf="v.processing">{{v.name}}</span>
+          <mat-icon style="color: #cd7d24" *ngIf="!v.name || !v.thumbnail" [matTooltip]="'Your video is hidden, due to lack of metadata. ' +
+           'Please go to edit page and provide the missing data'">warning</mat-icon></td>
+        <td>{{v.datePublished | simpleDate}}</td>
+        <td>{{v.views}}</td>
+        <td>
+          <ng-container *ngIf="!v.processing">
+            <button (click)="editVideo(v.id)" class="btn btn-primary btn-sm mx-1">Edit</button>
+            <button (click)="deleteVideo(v.id)" class="btn btn-danger btn-sm mx-1">Delete</button>
+          </ng-container>
+          <ng-container *ngIf="v.processing">
+            <div class="d-flex justify-content-center align-content-center align-items-center">
+              <mat-spinner></mat-spinner>
+              <span>Your video is being processed. Check back later.</span>
+            </div>
+          </ng-container>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="accountVideos.length === 0">
+    <h3 class="text-center mt-5">You haven't uploaded any videos yet.</h3>
+    <app-upload></app-upload>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="report-window p-5 d-flex flex-column justify-content-center align-content-center align-items-center">
+  <div>
+    <span>User <b appMouseEnter style="cursor: pointer">{{report.reporterName}}</b> has reported following media: </span>
+  </div>
+
+  <div *ngIf="reportedVideo">
+    <div class="mb-2">
+      <div class="bg-black w-100 d-flex justify-content-center mb-2">
+        <img class="img-thumbnail" src="{{environment.getThumbnail(reportedVideo.thumbnail)}}" width="auto" height="200">
+      </div>
+      <div class="d-flex flex-row justify-content-start align-items-start w-100">
+        <div class="mx-2">
+          <img class="avatar avatar-sm"  src="{{environment.getAvatar(reportedVideo.authorId)}}">
+        </div>
+        <div class="d-flex flex-column justify-content-start align-items-start">
+        <span class="video-title fw-bolder">
+          {{reportedVideo.name | rowcut:50}}</span>
+          <div>
+            <span class="video-data text-center">{{reportedVideo.views+" views | "}}</span>
+            <span class="text-center" [matTooltip]="reportedVideo.datePublished | simpleDate">
+          {{reportedVideo.datePublished | dateFormat}}
+        </span>
+          </div>
+        </div>
+      </div>
+      <mat-divider class="mt-2" style="border-top-color: whitesmoke; opacity: 0.5"></mat-divider>
+    </div>
+  </div>
+  <div *ngIf="reportedComment">
+    <div class="comment-border mb-5 d-flex justify-content-center align-items-center align-content-center">
+        <span class="d-flex flex-row justify-content-start align-items-start align-content-start">
+      <div class="avatar-container mx-2">
+        <img class="avatar avatar-sm scalable" src="{{environment.getAvatar(reportedComment.authorId)}}">
+      </div>
+      <div class="d-flex flex-column justify-content-start align-items-start align-content-start">
+        <div class="d-flex flex-column justify-content-start align-items-start align-content-start">
+        <span class="username">{{reportedComment.authorName}}<span [matTooltip]="reportedComment.datePublished | simpleDate" class="date-published mx-2">{{reportedComment.datePublished | dateFormat}}</span></span>
+        <pre>{{shortenComment(reportedComment) | nextLiner:rowLength}}</pre>
+        <ng-container *ngIf="reportedComment.content.length > maxLength && !reportedComment.extended">
+          <a class="mx-5" (click)="resizeComment(reportedComment)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...more</a>
+        </ng-container>
+        <ng-container *ngIf="reportedComment.content.length > maxLength && reportedComment.extended">
+          <a class="mx-5" (click)="resizeComment(reportedComment)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...less</a>
+        </ng-container>
+      </div>
+      </div>
+    </span>
+      <mat-divider class="mt-2" style="border-top-color: whitesmoke; opacity: 0.5"></mat-divider>
+    </div>
+  </div>
+  <div class="my-3 d-flex flex-column justify-content-center align-items-center align-content-start">
+    <h4 class="mx-2">Reason: </h4>
+    <pre><i>{{report.content}}</i></pre>
+  </div>
+  <div class="d-flex flex-column justify-content-center align-content-center align-items-center">
+    <span>{{'Date submitted: '+(report.datePublished | simpleDate)}}</span>
+    <span class="mt-2">{{'Status: '+(report.resolvedBy ? report.solution : 'unresolved')}}</span>
+    <span *ngIf="report.reason" class="mt-2">{{'Admin comment: '+report.reason}}</span>
+  </div>
+  <div class="mt-5" *ngIf="!toggleSolve">
+    <button [ngClass]="report.resolvedBy ? 'btn-warning' : 'btn-primary'" (click)="toggleSolvePanel()" class="btn mx-2">{{report.resolvedBy ? 'Solve again' : 'Solve'}}</button>
+  </div>
+  <div class="buttons-menu mt-5" *ngIf="toggleSolve">
+      <div>
+        <form (ngSubmit)="solveReport($event.submitter.id)" [formGroup]="solveForm" class="d-flex flex-column justify-content-center align-items-center align-content-center">
+          <textarea [formControl]="solveForm.controls.reason" placeholder="Write down the reason of your decision" name="reason"
+          style="resize: none" cols="100" rows="5"></textarea>
+          <mat-error style="color: #a10202" *ngIf="solveForm.invalid && !solveForm.untouched">Reason is required!</mat-error>
+          <ng-container *ngIf="!report.solution?.includes('MEDIA')">
+            <button [disabled]="solveForm.invalid" type="submit" id="media" class="btn btn-primary my-2 w-25">Ban Media</button>
+          </ng-container>
+          <ng-container *ngIf="!report.solution?.includes('ACCOUNT')">
+            <button [disabled]="solveForm.invalid" type="submit" id="account" class="btn btn-warning my-2 w-25">Ban Account</button>
+          </ng-container>
+          <ng-container *ngIf="!report.solution?.includes('CANCEL')">
+            <button [disabled]="solveForm.invalid" type="submit" id="cancel" class="btn btn-danger my-2 w-25">{{report.resolvedBy ? 'Unban and Cancel' : 'Cancel Report'}}</button>
+          </ng-container>
+          <button (click)="toggleSolvePanel()" class="btn btn-info my-2 w-25">Back</button>
+        </form>
+      </div>
+  </div>
+</div>
