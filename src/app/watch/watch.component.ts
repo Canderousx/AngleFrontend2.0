@@ -42,7 +42,7 @@ export class WatchComponent implements OnInit, OnDestroy{
               private auth: AuthenticationService,
               private router: Router,
               private titleService: Title,
-              private subscribeService: SubscribeService,) {
+              private subscribeService: SubscribeService) {
   }
 
   videoUrl: string = "";
