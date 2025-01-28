@@ -1,6 +1,6 @@
 # Angle Frontend 2.0
 
-### Important:This version of Angle Frontend is under active development and heavy refactoring. It is not finished and may undergo significant changes at any time.
+### Important: This version of Angle Frontend is under active development and heavy refactoring. It is not finished and may undergo significant changes at any time.
 This project is the newest iteration of Angle Frontend (see: https://github.com/Canderousx/Angle_Frontend) and it is compatible with the newest version of Angle Backend(see: https://github.com/Canderousx/AngleBackend2.0-microservices-).
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
