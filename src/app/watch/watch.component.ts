@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {VideoPlayerComponent} from "../video-player/video-player.component";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Subscription} from "rxjs";
@@ -17,6 +17,7 @@ import {SubscribeService} from "../../shared/services/subscribe.service";
 import {VideoService} from "../../shared/services/video.service";
 import {Video} from "../../shared/models/video";
 import {account} from "../../shared/models/account";
+import {StatsService} from '../../shared/services/stats.service';
 
 @Component({
   selector: 'app-watch',
@@ -38,6 +39,7 @@ import {account} from "../../shared/models/account";
 })
 export class WatchComponent implements OnInit, OnDestroy{
   constructor(private videoService: VideoService,
+              private statsService: StatsService,
               private activatedRoute: ActivatedRoute,
               private auth: AuthenticationService,
               private router: Router,
@@ -100,7 +102,6 @@ export class WatchComponent implements OnInit, OnDestroy{
           }else{
             this.getAuthor();
           }
-          this.getVideoLikesNDislikes();
           this.checkIfChannelSubscribed();
           this.isVideoRated();
           this.getSimilarVideos();
@@ -123,11 +124,18 @@ export class WatchComponent implements OnInit, OnDestroy{
     }
   }
 
-  getVideoLikesNDislikes(){
-    this.videoService.getLikesNDislikes(this.video.id).subscribe({
+  getVideoStats(){
+    this.statsService.getVideoStats(this.video.id).subscribe({
       next: value => {
         this.videoLikes = value.likes;
         this.videoDislikes = value.dislikes;
+        if(this.rated){
+          if(this.rating === 'LIKE' && this.videoLikes === 0){
+            this.videoLikes++;
+          }else if (this.rating === 'DISLIKE' && this.videoDislikes === 0){
+            this.videoDislikes++;
+          }
+        }
       }
     })
   }
@@ -167,13 +175,12 @@ export class WatchComponent implements OnInit, OnDestroy{
 
   isVideoRated(){
     if(this.currentUser){
-      this.videoService.checkRate(this.video.id)
+      this.statsService.checkRate(this.video.id)
         .subscribe({
           next: value => {
             this.rating = value.rating;
             this.rated = value.rating.toLowerCase() !== "none";
-            console.log("VIDEO RATED: "+this.rated)
-            console.log("VIDEO RATING: "+this.rating)
+            this.getVideoStats();
           }
         })
     }
@@ -196,7 +203,6 @@ export class WatchComponent implements OnInit, OnDestroy{
     this.queryParamSub = this.activatedRoute.queryParams.subscribe({
         next: value => {
           this.getVideo(value['v']);
-          setTimeout(() =>{this.registerView()}, 30000)
         }
       }
     )
@@ -213,17 +219,8 @@ export class WatchComponent implements OnInit, OnDestroy{
     this.subscribeService.unsubscribe(this.author.id);
   }
 
-  registerView(){
-    this.videoService.registerView(this.video.id)
-      .subscribe({
-        next: value => {
-          this.video.views+=1;
-        }
-      })
-  }
-
   rateVideo(rate: string){
-    this.videoService.rateVideo(this.video.id,rate)
+    this.statsService.rateVideo(this.video.id,rate)
       .subscribe({
         next: value => {
           if(this.rated){

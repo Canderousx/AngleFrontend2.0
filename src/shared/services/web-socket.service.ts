@@ -6,7 +6,6 @@ import {UserNotificationService} from './user-notification.service';
 import {EngineNotificationService} from './engine-notification.service';
 import {Page} from '../models/page';
 import {AuthenticationService} from './authentication.service';
-import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 
 @Injectable({
@@ -16,6 +15,7 @@ export class WebSocketService {
   private backendUrl = environment.backendUrl + '/api/notifications/ws';
   private socketClient: Stomp.Client | null = null;
   private connectionError = false;
+  private connectionAttempts = 0;
 
   constructor(private userNotification: UserNotificationService,
               private engineNotification: EngineNotificationService,
@@ -51,17 +51,25 @@ export class WebSocketService {
           if(this.connectionError){
             this.connectionError = false;
             this.toast.success("Connection established.")
+            this.connectionAttempts = 0;
           }
 
         },
         (error: any) => {
           this.toast.warning("Lost connection with the server... Retrying.")
           this.connectionError = true;
-          setTimeout(
-            () =>
-              this.connect(),
-            10000
-          )
+          this.connectionAttempts++;
+          if(this.connectionAttempts <= 2){
+            setTimeout(
+              () => window.location.reload(), 10000
+            )
+          }else{
+            setTimeout(
+              () =>
+                this.connect(),
+              10000
+            )
+          }
         }
       );
     }

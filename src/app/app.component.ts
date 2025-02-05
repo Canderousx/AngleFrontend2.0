@@ -10,6 +10,7 @@ import {ModalComponent} from "../shared/components/modal/modal.component";
 import {account} from "../shared/models/account";
 import {WebSocketService} from '../shared/services/web-socket.service';
 import {UserNotificationService} from '../shared/services/user-notification.service';
+import {StatsService} from '../shared/services/stats.service';
 
 
 export interface serverResponse{
@@ -25,6 +26,7 @@ export interface serverResponse{
 })
 export class AppComponent implements OnInit, OnDestroy{
   constructor(private webSocketService: WebSocketService,
+              private statsService: StatsService,
               private auth: AuthenticationService,
               private notificationService: UserNotificationService) {
   }
@@ -42,9 +44,9 @@ export class AppComponent implements OnInit, OnDestroy{
           this.webSocketService.connect();
           this.getNotifications();
         }
+        this.statsService.connect();
       }
     })
-
     if(localStorage.getItem("authToken")){
       this.auth.getCurrentUser().subscribe({
         next: value => {
@@ -58,6 +60,7 @@ export class AppComponent implements OnInit, OnDestroy{
 
   ngOnDestroy() {
     this.webSocketService.disconnect();
+    this.statsService.disconnect();
 
   }
 

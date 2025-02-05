@@ -67,7 +67,6 @@ export class UploadMetadataComponent implements OnInit, OnDestroy{
         this.videoId = value['v'];
         console.log("Video ID: "+this.videoId);
         if(value['existing']){
-          console.log("Existing video: true")
           this.existingVideo = true;
           this.setExistingVideo();
         }

@@ -1,6 +1,6 @@
 import {
   AfterViewInit,
-  Component,
+  Component, HostListener,
   Input,
   OnChanges,
   OnDestroy,
@@ -16,6 +16,8 @@ import {VgBufferingModule} from "@videogular/ngx-videogular/buffering";
 import {VgStreamingModule} from "@videogular/ngx-videogular/streaming";
 import {MaterialModule} from "../../shared/modules/material/material.module";
 import {environment} from '../../environments/environment.development';
+import {StatsService} from '../../shared/services/stats.service';
+import {Subscription} from 'rxjs';
 
 
 @Component({
@@ -33,19 +35,29 @@ import {environment} from '../../environments/environment.development';
   templateUrl: './video-player.component.html',
   styleUrl: './video-player.component.css'
 })
-export class VideoPlayerComponent implements AfterViewInit, OnChanges{
+export class VideoPlayerComponent implements OnInit, AfterViewInit, OnChanges,OnDestroy{
 
-  constructor() {
+  constructor(private statsService: StatsService) {
 
 
   }
   @Input()videoUrl!: string;
+  @Input()videoId!: string;
+  prevVideoId!: string;
+  @ViewChild('media') media: any;
   showPlayer = true;
   api: VgApiService = new VgApiService();
   qualities: BitrateOptions[] = [];
-  @ViewChild('media') media: any;
+
+  onPlay!: Subscription;
+  onPause!: Subscription;
+  onEnded!: Subscription;
 
   // LIFECYCLE HOOKS:
+
+  ngOnInit() {
+    this.prevVideoId = this.videoId;
+  }
 
   ngAfterViewInit() {
     this.setBitrates();
@@ -53,10 +65,47 @@ export class VideoPlayerComponent implements AfterViewInit, OnChanges{
 
   ngOnChanges(changes: SimpleChanges) {
     if(changes['videoUrl'] && !changes['videoUrl'].isFirstChange()){
+      this.statsService.onVideoEnded(this.prevVideoId)
       this.setBitrates();
       this.reloadPlayer();
     }
+  }
 
+  ngOnDestroy() {
+    if(this.onPlay){
+      this.onPlay.unsubscribe();
+    }
+    if(this.onPause){
+      this.onPause.unsubscribe();
+    }
+    if(this.onEnded){
+      this.onEnded.unsubscribe();
+    }
+    this.statsService.onVideoEnded(this.prevVideoId)
+  }
+
+  // SUBSCRIPTIONS:
+
+  onPlaySub(){
+    this.onPlay = this.api.getDefaultMedia().subscriptions.play.subscribe({
+      next: value => {
+        this.statsService.onVideoPlay(this.prevVideoId)
+      }
+    })
+  }
+  onPauseSub(){
+    this.onPause = this.api.getDefaultMedia().subscriptions.pause.subscribe({
+      next: value => {
+        this.statsService.onVideoPause(this.prevVideoId)
+      }
+    })
+  }
+  onEndedSub(){
+    this.onEnded = this.api.getDefaultMedia().subscriptions.ended.subscribe({
+      next: value => {
+        this.statsService.onVideoEnded(this.prevVideoId)
+      }
+    })
   }
 
   //ACTIONS:
@@ -65,11 +114,24 @@ export class VideoPlayerComponent implements AfterViewInit, OnChanges{
   }
 
 
+  // @HostListener('window:beforeunload', ['$event'])
+  // onBeforeUnload(event: BeforeUnloadEvent) {
+  //   localStorage.setItem("videoUrl", this.videoId);
+  //   localStorage.setItem("time",this.watchTime.toString());
+  // }
+
+
+  //DATA TO API:
+
+
 
   //UI:
 
   onPlayerReady(source: VgApiService){
     this.api = source;
+    this.onPlaySub();
+    this.onPauseSub();
+    this.onEndedSub();
     this.api.getDefaultMedia().subscriptions.loadedMetadata.subscribe(
       this.autoplay.bind(this)
     )
@@ -83,6 +145,7 @@ export class VideoPlayerComponent implements AfterViewInit, OnChanges{
 
   reloadPlayer(){
     this.showPlayer = false;
+    this.prevVideoId = this.videoId;
     setTimeout(() => {
       this.showPlayer = true;
     }, 50);

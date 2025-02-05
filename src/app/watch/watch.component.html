@@ -4,7 +4,7 @@
   </div>
   <div *ngIf="video && author" class="watcher justify-content-center align-items-start align-content-center">
     <div class="player">
-      <app-video-player [videoUrl]="videoUrl"></app-video-player>
+      <app-video-player [videoUrl]="videoUrl" [videoId]="video.id"></app-video-player>
     </div>
     <div class="video-metadata">
       <div class="video-stats d-flex flex-row justify-content-between ">

@@ -6,8 +6,6 @@ import {DateFormatPipe} from "../../pipes/date-format.pipe";
 import {MatTooltip} from "@angular/material/tooltip";
 import {SimpleDatePipe} from "../../pipes/simple-date.pipe";
 import {Video} from "../../models/video";
-import {VideoService} from "../../services/video.service";
-import {AuthenticationService} from "../../services/authentication.service";
 import {environment} from '../../../environments/environment.development';
 
 @Component({
@@ -26,7 +24,7 @@ import {environment} from '../../../environments/environment.development';
 })
 export class FeedComponent {
 
-  constructor(private router: Router,private videoService: VideoService,private authService: AuthenticationService,) {
+  constructor(private router: Router) {
   }
 
   @Input() videosList!: Video[];

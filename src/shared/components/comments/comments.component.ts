@@ -105,8 +105,9 @@ export class CommentsComponent implements OnInit, OnChanges{
         .subscribe({
           next: value => {
             this.toast.info(value.message)
-            this.page = 0;
-            this.loadComments();
+            comment.datePublished = new Date().toString();
+            this.comments.unshift(comment);
+            this.totalComments++;
           }
         })
     }
