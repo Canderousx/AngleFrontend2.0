@@ -82,6 +82,9 @@ export class WatchComponent implements OnInit, OnDestroy{
     if(this.subSub){
       this.subSub.unsubscribe();
     }
+    if(this.queryParamSub){
+      this.queryParamSub.unsubscribe();
+    }
   }
 
   //DOWNLOADING DATA FROM API:
@@ -154,18 +157,21 @@ export class WatchComponent implements OnInit, OnDestroy{
     this.videoService.getAuthor(this.video.authorId)
       .subscribe({
         next: value => {
-          this.author = value;
-          if(!!localStorage.getItem("authToken")){
-            this.subscribeService.isSubscriber(this.author.id)
-              .subscribe({
-                next: value =>{
-                  this.author.subscribed = value;
-                },
-                error: err => {
-                  this.author.subscribed = false;
-                }
-              })
+          if(value){
+            this.author = value;
+            if(this.currentUser){
+              this.subscribeService.isSubscriber(this.author.id)
+                .subscribe({
+                  next: value =>{
+                    this.author.subscribed = value;
+                  },
+                  error: err => {
+                    this.author.subscribed = false;
+                  }
+                })
+            }
           }
+
         },
         error: err => {
           console.log(err.error);

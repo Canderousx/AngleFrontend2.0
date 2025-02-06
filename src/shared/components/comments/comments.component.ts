@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {Comment} from "../../models/comment";
 import {NgForOf, NgIf} from "@angular/common";
 import {MaterialModule} from "../../modules/material/material.module";
@@ -14,6 +14,7 @@ import {CommentsService} from "../../services/comments.service";
 import {account} from "../../models/account";
 import {ToastrService} from 'ngx-toastr';
 import {environment} from '../../../environments/environment.development';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-comments',
@@ -32,7 +33,7 @@ import {environment} from '../../../environments/environment.development';
   templateUrl: './comments.component.html',
   styleUrl: './comments.component.css'
 })
-export class CommentsComponent implements OnInit, OnChanges{
+export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
 
   constructor(private commentsService: CommentsService,
               private auth: AuthenticationService,
@@ -41,6 +42,7 @@ export class CommentsComponent implements OnInit, OnChanges{
   }
 
   @Input() videoId!: string;
+  authSub!: Subscription;
   user!: account;
   comments: Comment[] = [];
   totalComments = 0;
@@ -59,14 +61,19 @@ export class CommentsComponent implements OnInit, OnChanges{
   ngOnInit() {
     this.loadComments();
     this.checkLogin();
-    this.auth.getCurrentUser();
-    this.auth.currentUser.subscribe({
+    this.authSub = this.auth.currentUser.subscribe({
       next: value => {
         if(value){
           this.user = value;
         }
       }
     })
+  }
+
+  ngOnDestroy() {
+    if(this.authSub){
+      this.authSub.unsubscribe();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -82,7 +89,6 @@ export class CommentsComponent implements OnInit, OnChanges{
     this.commentsService.loadComments(this.videoId,this.page,this.pageSize)
       .subscribe({
         next: value => {
-          console.log("TOTAL COMMENTS: "+value.size)
           this.totalComments = value.totalElements;
           this.comments = value.content;
         }

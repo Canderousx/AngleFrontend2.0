@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MaterialModule} from "../../shared/modules/material/material.module";
 import {NgForOf, NgIf} from "@angular/common";
 import {AuthenticationService} from "../../shared/services/authentication.service";
@@ -14,6 +14,7 @@ import {Video} from "../../shared/models/video";
 import {account} from "../../shared/models/account";
 import {environment} from '../../environments/environment.development';
 import {ToastrService} from 'ngx-toastr';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-video-manager',
@@ -22,8 +23,9 @@ import {ToastrService} from 'ngx-toastr';
   templateUrl: './video-manager.component.html',
   styleUrl: './video-manager.component.css'
 })
-export class VideoManagerComponent implements OnInit{
+export class VideoManagerComponent implements OnInit,OnDestroy{
 
+  authSub!: Subscription;
   accountVideos!: Video[];
   currentUser!: account;
   paramId!: string;
@@ -43,7 +45,7 @@ export class VideoManagerComponent implements OnInit{
 
   ngOnInit() {
     this.titleService.setTitle("Videos Manager")
-    this.auth.currentUser.subscribe(user => {
+    this.authSub = this.auth.currentUser.subscribe(user => {
       if(user){
         this.currentUser = user;
         this.loadVideos();
@@ -51,6 +53,12 @@ export class VideoManagerComponent implements OnInit{
         this.router.navigate(["/"])
       }
     })
+  }
+
+  ngOnDestroy() {
+    if(this.authSub){
+      this.authSub.unsubscribe();
+    }
   }
 
 

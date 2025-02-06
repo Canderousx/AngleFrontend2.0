@@ -59,8 +59,12 @@ export class HeaderComponent implements OnInit,OnDestroy{
   }
 
   ngOnDestroy() {
-    this.authSub.unsubscribe();
-    this.notificationsSub.unsubscribe();
+    if(this.authSub){
+      this.authSub.unsubscribe();
+    }
+    if(this.notificationsSub){
+      this.notificationsSub.unsubscribe();
+    }
   }
 
   // SUBSCRIPTIONS:

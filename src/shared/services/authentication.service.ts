@@ -80,6 +80,9 @@ export class AuthenticationService {
   }
 
   getUser(id: string){
+    if(this.loggedUser && this.loggedUser.id == id){
+      return this.currentUser;
+    }
     return this.http.get<account>(this.backendUrl+"/accounts/getUserById?id="+id)
   }
 

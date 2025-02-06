@@ -52,7 +52,9 @@ export class AppComponent implements OnInit, OnDestroy{
       this.notificationsService.disconnect();
       this.statsService.disconnect();
     }
-    this.authSub.unsubscribe()
+    if(this.authSub){
+      this.authSub.unsubscribe();
+    }
   }
 
   //SUBSCRIPTIONS:

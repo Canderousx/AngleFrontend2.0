@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {GlobalMessengerService} from "../../shared/services/global-messenger.service";
 import {NgForOf, NgIf} from "@angular/common";
 import {RouterLink} from "@angular/router";
@@ -9,6 +9,7 @@ import {VideoService} from "../../shared/services/video.service";
 import {Video} from "../../shared/models/video";
 import {AuthenticationService} from "../../shared/services/authentication.service";
 import {account} from "../../shared/models/account";
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,7 @@ import {account} from "../../shared/models/account";
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit{
+export class HomeComponent implements OnInit,OnDestroy{
 
   constructor(private videoService: VideoService,
               private global: GlobalMessengerService,
@@ -29,6 +30,7 @@ export class HomeComponent implements OnInit{
               private authService: AuthenticationService) {
   }
 
+  authSub!: Subscription;
   latestVideos: Video[] = [];
   mostPopular: Video[] = [];
   loaded = false;
@@ -42,7 +44,7 @@ export class HomeComponent implements OnInit{
   //LIFECYCLE HOOKS:
 
   ngOnInit() {
-    this.authService.currentUser.subscribe({
+    this.authSub = this.authService.currentUser.subscribe({
       next: value => {
         this.currentUser = value;
         if(this.currentUser){
@@ -62,7 +64,11 @@ export class HomeComponent implements OnInit{
       }
     })
     this.loadLatest();
-
+  }
+  ngOnDestroy() {
+    if(this.authSub){
+      this.authSub.unsubscribe();
+    }
   }
 
   //DOWNLOADING DATA FROM API:
