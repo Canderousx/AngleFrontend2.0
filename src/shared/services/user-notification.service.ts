@@ -4,7 +4,7 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {Page} from '../models/page';
-import {WebSocketService} from './web-socket.service';
+import {NotificationsService} from './notifications-service';
 
 @Injectable({
   providedIn: 'root'

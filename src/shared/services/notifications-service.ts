@@ -11,7 +11,7 @@ import {ToastrService} from 'ngx-toastr';
 @Injectable({
   providedIn: 'root',
 })
-export class WebSocketService {
+export class NotificationsService {
   private backendUrl = environment.backendUrl + '/api/notifications/ws';
   private socketClient: Stomp.Client | null = null;
   private connectionError = false;
@@ -25,7 +25,8 @@ export class WebSocketService {
 
   connect(): void {
     if (this.socketClient && this.socketClient.connected) {
-      this.disconnect();
+      console.log("Connection already found. Skipping.")
+      return;
     }
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -59,16 +60,14 @@ export class WebSocketService {
           this.toast.warning("Lost connection with the server... Retrying.")
           this.connectionError = true;
           this.connectionAttempts++;
-          if(this.connectionAttempts <= 2){
+          if(this.connectionAttempts <= 6){
             setTimeout(
-              () => window.location.reload(), 10000
+              () => this.connect(), 10000
             )
-          }else{
-            setTimeout(
-              () =>
-                this.connect(),
-              10000
-            )
+          }else {
+            console.log(error)
+            this.toast.error(`Connection failed after ${this.connectionAttempts} attempts. Aborting. Try refreshing the page.`)
+            return;
           }
         }
       );
@@ -76,11 +75,15 @@ export class WebSocketService {
   }
 
   disconnect(): void {
-    if (this.socketClient) {
+    if (this.socketClient && this.socketClient.connected) {
       this.socketClient.disconnect(() => {
-        console.log('Disconnected from WebSocket');
       });
     }
+  }
+
+  reconnect(){
+    this.disconnect();
+    this.connect();
   }
 
   sendMessage(destination: string, payload: any): void {

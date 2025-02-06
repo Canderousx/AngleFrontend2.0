@@ -53,15 +53,7 @@ export class SignInComponent implements OnInit{
     password:this.signForm.controls.password.value!})
       .subscribe({
         next: value => {
-          localStorage.setItem("authToken",value.authToken)
-          localStorage.setItem("session",value.session)
-          this.authService.loggedIn.next(true);
-          this.authService.getCurrentUser().subscribe({
-            next: value => {
-              this.authService.currentUser.next(value);
-            }
-          });
-          this.toastService.success("You've been logged in! Welcome to the Angle!")
+          this.toastService.success(`Welcome to the Angle ${value.username} !`)
           if(localStorage.getItem("prevURL")){
             let url = localStorage.getItem("prevURL") as string;
             localStorage.removeItem("prevURL")
@@ -69,7 +61,6 @@ export class SignInComponent implements OnInit{
           }else{
             this.router.navigate([''])
           }
-
         },
         error: err =>{
           let error: serverResponse = err.error;

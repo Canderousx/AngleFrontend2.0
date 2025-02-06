@@ -1,19 +1,20 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, tap} from "rxjs";
+import {BehaviorSubject, Subject, switchMap, tap} from "rxjs";
 import {environment} from "../../environments/environment.development";
 import {serverResponse} from "../../app/app.component";
 import {authRes} from "../../app/sign-in/sign-in.component";
 import {account} from "../models/account";
 import {ToastrService} from 'ngx-toastr';
 import {Router} from '@angular/router';
+import {NotificationsService} from './notifications-service';
+import {StatsService} from './stats.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthenticationService {
 
-  loggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   loggedUser: account | null = null;
   currentUser: BehaviorSubject<account | null> = new BehaviorSubject(this.loggedUser)
   backendUrl: string = environment.backendUrl+"/api/auth";
@@ -29,7 +30,15 @@ export class AuthenticationService {
   }
 
   authenticate(credentials: {email: string, password: string}){
-    return this.http.post<authRes>(this.backendUrl+"/signIn",credentials)
+    return this.http.post<authRes>(this.backendUrl+"/signIn",credentials).pipe(
+      tap(value => {
+        localStorage.setItem("authToken",value.authToken)
+        localStorage.setItem("session",value.session)
+      }),
+      switchMap( () =>{
+        return this.getCurrentUser();
+      })
+    )
   }
 
   clearSessionData(){
@@ -37,7 +46,6 @@ export class AuthenticationService {
     localStorage.removeItem("session");
     this.loggedUser = null;
     this.currentUser.next(null);
-    this.loggedIn.next(false);
   }
 
   logout(){
@@ -59,7 +67,12 @@ export class AuthenticationService {
 
 
   getCurrentUser(){
-    return this.http.get<account>(this.backendUrl+"/accounts/getCurrentUser")
+    return this.http.get<account>(this.backendUrl+"/accounts/getCurrentUser").pipe(
+      tap(user => {
+        this.loggedUser = user;
+        this.currentUser.next(this.loggedUser)
+      })
+    )
   }
 
   signup(account: any){

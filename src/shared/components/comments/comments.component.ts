@@ -157,9 +157,9 @@ export class CommentsComponent implements OnInit, OnChanges{
 
 
   checkLogin(){
-    this.auth.loggedIn.subscribe({
+    this.auth.currentUser.subscribe({
       next: value => {
-        this.loggedIn = value;
+        this.loggedIn = !!value;
       }
     })
   }

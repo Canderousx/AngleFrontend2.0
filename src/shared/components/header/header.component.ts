@@ -11,7 +11,7 @@ import {account} from "../../models/account";
 import {Notification} from '../../models/notification';
 import {UserNotificationService} from '../../services/user-notification.service';
 import {environment} from '../../../environments/environment.development';
-import {WebSocketService} from '../../services/web-socket.service';
+import {NotificationsService} from '../../services/notifications-service';
 import {SimpleDatePipe} from '../../pipes/simple-date.pipe';
 import {DateFormatShortPipe} from '../../pipes/date-format-short.pipe';
 import {Title} from '@angular/platform-browser';
@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit,OnDestroy{
               private router: Router,
               private searchService: SearchService,
               private notificationService: UserNotificationService,
-              private webSocketService: WebSocketService,
+              private webSocketService: NotificationsService,
               private titleService: Title,) {
   }
 

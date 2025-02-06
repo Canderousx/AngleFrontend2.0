@@ -8,9 +8,10 @@ import {fadeInOut} from "../shared/animations/fadeInOut";
 import {AuthenticationService} from "../shared/services/authentication.service";
 import {ModalComponent} from "../shared/components/modal/modal.component";
 import {account} from "../shared/models/account";
-import {WebSocketService} from '../shared/services/web-socket.service';
+import {NotificationsService} from '../shared/services/notifications-service';
 import {UserNotificationService} from '../shared/services/user-notification.service';
 import {StatsService} from '../shared/services/stats.service';
+import {Subscription} from 'rxjs';
 
 
 export interface serverResponse{
@@ -25,53 +26,60 @@ export interface serverResponse{
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy{
-  constructor(private webSocketService: WebSocketService,
-              private statsService: StatsService,
-              private auth: AuthenticationService,
-              private notificationService: UserNotificationService) {
+  constructor(private auth: AuthenticationService,
+              private userNotificationService: UserNotificationService,
+              private notificationsService: NotificationsService,
+              private statsService: StatsService,) {
   }
   title = 'Angle - Between the Thoughts!';
   currentUser: account | null = null;
+  authSub!: Subscription;
   alert: string[] = [];
+  logoutEventSub!: Subscription;
 
   // LIFECYCLE HOOKS:
 
   ngOnInit() {
-    this.auth.currentUser.subscribe({
-      next: value => {
-        this.currentUser = value;
-        if(value){
-          this.webSocketService.connect();
-          this.getNotifications();
-        }
-        this.statsService.connect();
-      }
-    })
+    this.authServiceSub();
     if(localStorage.getItem("authToken")){
-      this.auth.getCurrentUser().subscribe({
-        next: value => {
-          this.auth.currentUser.next(value);
-          this.auth.loggedIn.next(true)
-        }
-      })
+      this.auth.getCurrentUser().subscribe();
     }
 
   }
 
   ngOnDestroy() {
-    this.webSocketService.disconnect();
-    this.statsService.disconnect();
+    if(this.currentUser){
+      this.notificationsService.disconnect();
+      this.statsService.disconnect();
+    }
+    this.authSub.unsubscribe()
+  }
 
+  //SUBSCRIPTIONS:
+  authServiceSub(){
+    this.authSub = this.auth.currentUser.subscribe({
+      next: value => {
+        this.statsService.reconnect();
+        if(value){
+          this.currentUser = value;
+          this.notificationsService.connect();
+          this.getNotifications();
+        }else{
+          this.notificationsService.disconnect();
+        }
+      }
+    })
   }
 
   //DOWNLOADING DATA FROM API:
 
   getNotifications(){
-    this.notificationService.getNotifications(0,10).subscribe({
+    this.userNotificationService.getNotifications(0,10).subscribe({
       next: value => {
-        this.notificationService.setNotifications(value.content)
+        this.userNotificationService.setNotifications(value.content)
       }
     })
   }
+
 
 }

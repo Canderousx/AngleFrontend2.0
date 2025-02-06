@@ -21,8 +21,10 @@ export class StatsService {
               private toast: ToastrService) { }
 
   connect(){
+    console.log("Connect called!")
     if (this.socketClient && this.socketClient.connected){
-      this.disconnect();
+      console.log("Connection already found. Skipping.")
+      return;
     }
     const token = this.authService.getAccessToken();
     const headers = token ? {Authentication: `Bearer ${token}`} : {};
@@ -33,22 +35,24 @@ export class StatsService {
     this.socketClient.connect(
       headers,
       (frame: any) => {
-
+        if(this.connectionError){
+          this.toast.success("Connection established")
+        }
+        this.connectionError = false;
+        this.connectionAttempts = 0;
       },
       (error: any) =>{
         this.toast.warning("Lost connection with the server... Retrying.")
         this.connectionError = true;
         this.connectionAttempts++;
-        if(this.connectionAttempts <= 2){
+        if(this.connectionAttempts <= 6){
           setTimeout(
-            () => window.location.reload(), 10000
+            () => this.connect(), 10000
           )
-        }else{
-          setTimeout(
-            () =>
-              this.connect(),
-            10000
-          )
+        }else {
+          console.log(error)
+          this.toast.error(`Connection failed after ${this.connectionAttempts} attempts. Aborting. Try refreshing the page.`)
+          return;
         }
       }
     )
@@ -56,11 +60,15 @@ export class StatsService {
   }
 
   disconnect(): void {
-    if (this.socketClient) {
+    if (this.socketClient && this.socketClient.connected) {
       this.socketClient.disconnect(() => {
-
       });
     }
+  }
+
+  reconnect(){
+    this.disconnect();
+    this.connect();
   }
 
   sendMessage(destination: string, payload: any): void {

@@ -36,10 +36,7 @@ export const authInterceptorInterceptor: HttpInterceptorFn = (req, next) => {
               return next(newReq)
             }),catchError(err =>{
               const message: serverResponse = err.error
-              localStorage.removeItem("authToken");
-              localStorage.removeItem("session");
-              authService.loggedIn.next(false);
-              authService.currentUser.next(null);
+              authService.logout();
               router.navigate(["/signin"])
               toast.error(message.message)
               throw err;
