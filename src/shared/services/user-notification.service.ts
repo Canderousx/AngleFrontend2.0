@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Notification} from '../models/notification';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject, Subject, tap} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {Page} from '../models/page';
@@ -43,7 +43,11 @@ export class UserNotificationService {
     this.unseenNotifications = unseen;
   }
   getNotifications(page: number, pageSize: number){
-    return this.http.get<Page<Notification>>(this.backendUrl+"/getNotifications?page="+page+"&pageSize="+pageSize);
+    return this.http.get<Page<Notification>>(this.backendUrl+"/getNotifications?page="+page+"&pageSize="+pageSize).pipe(
+      tap(value =>{
+        this.setNotifications(value.content)
+      })
+    );
   }
   setNotifications(notifications: Notification[]){
     this.notifications = notifications;

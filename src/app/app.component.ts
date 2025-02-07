@@ -76,11 +76,7 @@ export class AppComponent implements OnInit, OnDestroy{
   //DOWNLOADING DATA FROM API:
 
   getNotifications(){
-    this.userNotificationService.getNotifications(0,10).subscribe({
-      next: value => {
-        this.userNotificationService.setNotifications(value.content)
-      }
-    })
+    this.userNotificationService.getNotifications(0,10).subscribe();
   }
 
 
