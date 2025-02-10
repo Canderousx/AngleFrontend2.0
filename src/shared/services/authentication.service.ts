@@ -1,14 +1,13 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, Subject, switchMap, tap} from "rxjs";
+import {BehaviorSubject, from, Subject, switchMap, tap} from "rxjs";
 import {environment} from "../../environments/environment.development";
 import {serverResponse} from "../../app/app.component";
 import {authRes} from "../../app/sign-in/sign-in.component";
 import {account} from "../models/account";
 import {ToastrService} from 'ngx-toastr';
 import {Router} from '@angular/router';
-import {NotificationsService} from './notifications-service';
-import {StatsService} from './stats.service';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 @Injectable({
   providedIn: 'root'
@@ -26,23 +25,53 @@ export class AuthenticationService {
   }
 
   getAccessToken(){
-    return localStorage.getItem("authToken");
+    return sessionStorage.getItem("authToken");
+  }
+
+  async getFingerprint(){
+    const fp = await FingerprintJS.load();
+    const result = await fp.get();
+    return result.visitorId
+  }
+
+  refreshToken(){
+    const refreshToken = localStorage.getItem("session")
+      return from(this.getFingerprint()).pipe(
+        switchMap( fp =>{
+          return this.http.post(this.backendUrl+"/signIn/refresh",{refreshToken: refreshToken,fp: fp},{responseType: 'text'})
+            .pipe(
+              tap(res=>{
+                if(res){
+                  sessionStorage.setItem("authToken",res);
+                }else{
+                  this.clearSessionData();
+                }
+
+              })
+            )
+        })
+      )
   }
 
   authenticate(credentials: {email: string, password: string}){
-    return this.http.post<authRes>(this.backendUrl+"/signIn",credentials).pipe(
-      tap(value => {
-        localStorage.setItem("authToken",value.authToken)
-        localStorage.setItem("session",value.session)
-      }),
-      switchMap( () =>{
-        return this.getCurrentUser();
+    return from(this.getFingerprint()).pipe(
+      switchMap(fp =>{
+        return this.http.post<authRes>(this.backendUrl+"/signIn",{email: credentials.email, password: credentials.password, fingerprint: fp}).pipe(
+          tap(value => {
+            console.log("FINGERPRINT: "+fp)
+            sessionStorage.setItem("authToken",value.authToken)
+            localStorage.setItem("session",value.session)
+          }),
+          switchMap( () =>{
+            return this.getCurrentUser();
+          })
+        )
       })
     )
   }
 
   clearSessionData(){
-    localStorage.removeItem("authToken");
+    sessionStorage.removeItem("authToken");
     localStorage.removeItem("session");
     this.loggedUser = null;
     this.currentUser.next(null);
@@ -95,13 +124,4 @@ export class AuthenticationService {
     return this.http.post<serverResponse>(this.backendUrl+"/signUp/recoverPassword",{email: email})
   }
 
-  refreshToken(){
-    const refreshToken = localStorage.getItem("session")
-    return this.http.post(this.backendUrl+"/signIn/refresh",{refreshToken: refreshToken},{responseType: 'text'})
-      .pipe(
-        tap(res=>{
-          localStorage.setItem("authToken",res);
-        })
-      )
-  }
 }

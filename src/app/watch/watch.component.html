@@ -1,24 +1,24 @@
-<div class="watch-window d-flex flex-row justify-content-center align-items-start align-content-start">
+<div class="watch-window">
   <div *ngIf="isBanned">
     <span>Video is banned.</span>
   </div>
-  <div *ngIf="video && author" class="watcher justify-content-center align-items-start align-content-center">
+  <div *ngIf="video && author" class="watcher">
     <div class="player">
       <app-video-player [videoUrl]="videoUrl" [videoId]="video.id"></app-video-player>
     </div>
     <div class="video-metadata">
-      <div class="video-stats d-flex flex-row justify-content-between ">
+      <div class="video-stats">
         <h2 class="mt-2">{{video.name}}</h2>
       </div>
       <div class="video-metadata  mb-3 mx-0 mt-0">
-        <div class="video-stats d-flex flex-row justify-content-between">
+        <div class="video-stats">
           <h3 style="cursor: pointer"><img (click)="navigateToAuthorPage()" class="avatar avatar-sm scalable" src="{{environment.getAvatar(video.authorId)}}"><span appMouseEnter (click)="navigateToAuthorPage()" class="mx-1">{{author.username}}</span>
             <button (click)="subscribeChannel(true)" *ngIf="(!currentUser || currentUser.id !== video.authorId) && !author.subscribed" class="btn btn-primary mx-1">Subscribe!</button>
             <span (click)="subscribeChannel(false)" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()" *ngIf="author.subscribed" class="subscribed mx-1">{{hover ? 'UNSUBSCRIBE' : 'SUBSCRIBED!'}}</span>
             <button (click)="navigateToVideosManager()" *ngIf="currentUser && currentUser.id === video.authorId" class="btn btn-primary mx-1">Manager</button>
             <button (click)="navigateToEditVideo()" *ngIf="currentUser && currentUser.id === video.authorId" class="btn btn-success mx-1">Edit Video</button>
           </h3>
-          <div class="action-buttons d-flex justify-content-end align-items-center align-content-center">
+          <div class="action-buttons">
             <div class="like-btn d-flex justify-content-center align-content-center align-items-center mx-1">
               <button class="video-btn" (click)="rateVideo('LIKE')" [disabled]="rating ==='LIKE' && rated" [ngClass]="{'rated': rating ==='LIKE' && rated}" appMouseEnter><mat-icon>thumb_up_alt</mat-icon>{{videoLikes}}</button>
               |

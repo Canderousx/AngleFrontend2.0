@@ -41,7 +41,7 @@ export class AppComponent implements OnInit, OnDestroy{
 
   ngOnInit() {
     this.authServiceSub();
-    if(localStorage.getItem("authToken")){
+    if(localStorage.getItem("session")){
       this.auth.getCurrentUser().subscribe();
     }
 

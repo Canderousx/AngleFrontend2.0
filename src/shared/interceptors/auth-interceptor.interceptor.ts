@@ -1,52 +1,56 @@
-import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
+import {HttpErrorResponse, HttpEvent, HttpInterceptorFn} from '@angular/common/http';
 import {inject} from "@angular/core";
 import {AuthenticationService} from "../services/authentication.service";
-import {catchError, switchMap} from "rxjs";
-import {GlobalMessengerService} from "../services/global-messenger.service";
-import {ActivatedRoute, Router} from "@angular/router";
+import {catchError, Observable, switchMap, tap, throwError} from "rxjs";
+import {Router} from "@angular/router";
 import {ToastrService} from 'ngx-toastr';
-import {serverResponse} from '../../app/app.component';
 
 export const authInterceptorInterceptor: HttpInterceptorFn = (req, next) => {
   let authService = inject(AuthenticationService);
-  let global = inject(GlobalMessengerService);
-  let loggedIn = !!localStorage.getItem("authToken");
+  let loggedIn = !!localStorage.getItem("session");
   let toast = inject(ToastrService);
   let router = inject(Router)
   if(req.url.includes("signIn/refresh")){
     return next(req);
   }
-  if(loggedIn) {
+  if (loggedIn) {
     const authToken = authService.getAccessToken();
-    const authReq = req.clone({
-      headers: req.headers.set('Authentication', `Bearer ${authToken}`)
-    });
-    return next(authReq).pipe(
-      catchError((err: HttpErrorResponse) =>{
-        if(err.status === 401){
-          return authService.refreshToken().pipe(
-            switchMap(() => {
-              const newToken = authService.getAccessToken();
-              console.log("NEW TOKEN: "+newToken);
-              const newReq = req.clone({
-                setHeaders: {
-                  Authentication: `Bearer ${newToken}`
-                }
-              });
-              return next(newReq)
-            }),catchError(err =>{
-              const message: serverResponse = err.error
-              authService.logout();
-              router.navigate(["/signin"])
-              toast.error(message.message)
-              throw err;
 
-            })
-          )
-        }
-        throw err;
-      })
-    );
+    const handleRefreshOrLogout = (): Observable<HttpEvent<any>> => {
+      return authService.refreshToken().pipe(
+        switchMap(() => {
+          const newToken = authService.getAccessToken();
+          if (newToken) {
+            const newReq = req.clone({
+              setHeaders: { Authentication: `Bearer ${newToken}` }
+            });
+            return next(newReq);
+          } else {
+            router.navigate(['/signin']);
+            toast.error('Session timeout. You need to sign in to your account.');
+            return throwError(() => new Error('Unauthorized refresh attempt'));
+          }
+        }),
+      );
+    };
+    if (authToken) {
+      const authReq = req.clone({
+        setHeaders: { Authentication: `Bearer ${authToken}` }
+      });
+      return next(authReq).pipe(
+        catchError((err: HttpErrorResponse) => {
+          console.log(err);
+          if (err.status === 401) {
+            return handleRefreshOrLogout();
+          }
+          return throwError(() => err);
+        })
+      );
+    }
+    else {
+      return handleRefreshOrLogout();
+    }
+
   }
   return next(req);
 };
