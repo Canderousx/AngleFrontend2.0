@@ -11,6 +11,7 @@ import {MatInput} from "@angular/material/input";
 import {serverResponse} from "../app.component";
 import {VideoService} from "../../shared/services/video.service";
 import {environment} from '../../environments/environment.development';
+import {ToastrService} from 'ngx-toastr';
 
 
 export interface tag{
@@ -37,7 +38,7 @@ export class UploadMetadataComponent implements OnInit, OnDestroy{
   constructor(private activatedRoute: ActivatedRoute,
               private videoService: VideoService,
               private router: Router,
-              private global: GlobalMessengerService) {
+              private toast: ToastrService) {
   }
 
   videoId!: string;
@@ -45,6 +46,7 @@ export class UploadMetadataComponent implements OnInit, OnDestroy{
   index = 0;
   thumbnails: string[] = [];
   existingVideo = false;
+  banned = false;
 
   metaName = new FormGroup({
     name: new FormControl("",{validators: Validators.required})
@@ -93,6 +95,11 @@ export class UploadMetadataComponent implements OnInit, OnDestroy{
         this.metaDesc.controls.description.setValue(value.description);
         let tags = "";
         this.metaTags.controls.tags.setValue(tags);
+      },
+      error: err => {
+        if(err.status === 666){
+          this.banned = true;
+        }
       }
     })
   }
@@ -107,10 +114,9 @@ export class UploadMetadataComponent implements OnInit, OnDestroy{
         },
         error: (err : HttpErrorResponse) => {
           if(err.status === 400){
-            this.global.toastMessage.next(["alert-warning","Unauthorized!"])
             this.router.navigate([""])
           }else{
-            this.global.toastMessage.next(["alert-warning","An error occured during video processing...."])
+            this.toast.error('An error occured during video processing....')
           }
         }
       })
@@ -135,12 +141,12 @@ export class UploadMetadataComponent implements OnInit, OnDestroy{
     }
     this.videoService.setMetadata(this.videoId,video).subscribe({
       next: value => {
-        this.global.toastMessage.next(['alert-success','Your video has been saved!'])
+        this.toast.success('Metadata has been saved!')
         this.router.navigate([''])
       },
       error: err => {
         let sR: serverResponse = err.error;
-        this.global.toastMessage.next(['alert-warning',sR.message])
+        this.toast.error(sR.message)
       }
     })
   }

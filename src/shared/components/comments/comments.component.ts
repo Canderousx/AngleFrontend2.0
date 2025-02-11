@@ -59,6 +59,8 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
   //LIFECYCLE HOOKS:
 
   ngOnInit() {
+    this.page = 0;
+    this.comments = [];
     this.loadComments();
     this.checkLogin();
     this.authSub = this.auth.currentUser.subscribe({
@@ -77,7 +79,9 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(changes['videoId']){
+    if(changes['videoId'] && !changes['videoId'].isFirstChange()){
+      this.comments = [];
+      this.page = 0;
       this.loadComments();
     }
   }
@@ -85,12 +89,15 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
   // DOWNLOADING DATA FROM API:
 
   loadComments(){
-    this.comments = [];
     this.commentsService.loadComments(this.videoId,this.page,this.pageSize)
       .subscribe({
         next: value => {
           this.totalComments = value.totalElements;
-          this.comments = value.content;
+          if(this.comments.length > 0){
+            this.comments.push(...value.content)
+          }else{
+            this.comments = value.content;
+          }
         }
       })
   }
@@ -119,12 +126,13 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
     }
   }
 
-  delete(id: string | undefined){
+  delete(id: string | undefined,index: number){
     this.commentsService.deleteComment(id!)
       .subscribe({
         next: value => {
           this.toast.info(value.message)
-          this.loadComments();
+          this.comments.splice(index,1)
+          this.totalComments--;
         },
         error: err => {
           let error: serverResponse = err.error;
@@ -157,8 +165,10 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
   }
 
   moreComments(){
-    this.page++;
-    this.commentsService.loadComments(this.videoId,this.page,this.pageSize);
+    if(this.comments.length < this.totalComments){
+      this.page++;
+      this.loadComments();
+    }
   }
 
 

@@ -28,7 +28,7 @@ export class NotificationsService {
       console.log("Connection already found. Skipping.")
       return;
     }
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     if (token) {
       const ws = new WebSocket(this.backendUrl.replace('http', 'ws'));
 

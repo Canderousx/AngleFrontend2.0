@@ -62,7 +62,8 @@
     </button>
 
     <button [matMenuTriggerFor]="menu" appMouseEnter mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-      <mat-icon>menu</mat-icon>
+      <mat-icon *ngIf="!currentUser">menu</mat-icon>
+      <img *ngIf="currentUser" class="avatar avatar-med" src="{{environment.getAvatar(currentUser?.id!)}}">
     </button>
     <mat-menu #menu = "matMenu">
       <button (click)="signin()" appMouseEnter mat-menu-item *ngIf="!currentUser">

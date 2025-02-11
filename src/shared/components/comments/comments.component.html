@@ -44,7 +44,7 @@
           <mat-icon>flag</mat-icon>
           <span>Report</span>
         </button>
-        <button (click)="delete(comment.id)" appMouseEnter mat-menu-item *ngIf="comment.authorId === user.id">
+        <button (click)="delete(comment.id,i)" appMouseEnter mat-menu-item *ngIf="comment.authorId === user.id">
           <mat-icon>delete</mat-icon>
           <span>Delete</span>
         </button>

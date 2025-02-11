@@ -19,7 +19,7 @@
           <a *ngIf="!v.processing" style="text-decoration: none; color: black" appMouseEnter href="{{'watch?v='+v.id}}" target="_blank">{{v.name}}</a>
           <span *ngIf="v.processing">{{v.name}}</span>
           <mat-icon style="color: #cd7d24" *ngIf="!v.name || !v.thumbnail" [matTooltip]="'Your video is hidden, due to lack of metadata. ' +
-           'Please go to edit page and provide the missing data'">warning</mat-icon></td>
+           'Please go to the edit page'">warning</mat-icon></td>
         <td>{{v.datePublished | simpleDate}}</td>
         <td>{{v.views}}</td>
         <td>
