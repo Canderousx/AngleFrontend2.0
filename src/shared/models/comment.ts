@@ -6,4 +6,6 @@ export interface Comment {
   authorName:string,
   content: string,
   extended?: boolean,
+  parentCommentId?: string,
+  parentCommentAuthorId?: string
 }

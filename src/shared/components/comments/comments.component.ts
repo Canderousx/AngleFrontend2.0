@@ -15,6 +15,7 @@ import {account} from "../../models/account";
 import {ToastrService} from 'ngx-toastr';
 import {environment} from '../../../environments/environment.development';
 import {Subscription} from 'rxjs';
+import {SingleCommentComponent} from '../single-comment/single-comment.component';
 
 @Component({
   selector: 'app-comments',
@@ -28,7 +29,8 @@ import {Subscription} from 'rxjs';
     DateFormatPipe,
     SimpleDatePipe,
     MouseEnterDirective,
-    NextLinerPipe
+    NextLinerPipe,
+    SingleCommentComponent
   ],
   templateUrl: './comments.component.html',
   styleUrl: './comments.component.css'
@@ -46,11 +48,11 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
   user!: account;
   comments: Comment[] = [];
   totalComments = 0;
+  totalCommentsWithReplies = 0;
   page = 0;
   pageSize = 10;
   loggedIn = false;
-  maxLength = 35;
-  rowLength = 120;
+
 
   commentForm = new FormGroup({
     content: new FormControl("",Validators.compose([Validators.required])),
@@ -62,6 +64,7 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
     this.page = 0;
     this.comments = [];
     this.loadComments();
+    this.countAllComments();
     this.checkLogin();
     this.authSub = this.auth.currentUser.subscribe({
       next: value => {
@@ -83,6 +86,7 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
       this.comments = [];
       this.page = 0;
       this.loadComments();
+      this.countAllComments();
     }
   }
 
@@ -100,6 +104,14 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
           }
         }
       })
+  }
+
+  countAllComments(){
+    this.commentsService.countAllComments(this.videoId).subscribe({
+      next: value => {
+        this.totalCommentsWithReplies = value;
+      }
+    })
   }
 
   // ACTIONS:
@@ -126,24 +138,11 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
     }
   }
 
-  delete(id: string | undefined,index: number){
-    this.commentsService.deleteComment(id!)
-      .subscribe({
-        next: value => {
-          this.toast.info(value.message)
-          this.comments.splice(index,1)
-          this.totalComments--;
-        },
-        error: err => {
-          let error: serverResponse = err.error;
-          this.toast.error(error.message);
-        }
-      })
+  deleteEvent(index: number){
+    this.comments.splice(index,1)
+    this.totalComments--;
   }
 
-  report(id: string | undefined){
-    this.router.navigate(["/report"],{queryParams:{id: id,type:"comment",src: this.router.url}})
-  }
 
   signin(){
     localStorage.setItem("prevURL",this.router.url);
@@ -153,16 +152,7 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
 
   // UI:
 
-  resizeComment(comment: Comment){
-    comment.extended = !comment.extended;
-  }
 
-  shortenComment(comment: Comment){
-    if(!comment.extended){
-      return comment.content.slice(0,this.rowLength);
-    }
-    return comment.content;
-  }
 
   moreComments(){
     if(this.comments.length < this.totalComments){

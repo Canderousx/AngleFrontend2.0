@@ -22,8 +22,16 @@ export class CommentsService {
     return this.http.post<serverResponse>(this.backendUrl+"/comments/addComment",comment);
   }
 
+  countAllComments(videoId:string){
+    return this.http.get<number>(this.backendUrl+"/comments/countAllComments?videoId="+videoId);
+  }
+
   loadComments(videoId: string, page: number, pageSize: number) {
     return this.http.get<Page<Comment>>(this.backendUrl+"/comments/getVideoComments?id="+videoId+"&page="+page+"&pageSize="+pageSize)
+  }
+
+  loadReplies(parentCommentId: string, page: number, pageSize: number) {
+    return this.http.get<Page<Comment>>(this.backendUrl+"/comments/getReplies?parentCommentId="+parentCommentId+"&page="+page+"&pageSize="+pageSize)
   }
 
   getComment(id: string){

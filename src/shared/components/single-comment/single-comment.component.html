@@ -1,0 +1,70 @@
+<div class="comment my-2 d-flex flex-row justify-content-between w-100">
+  <span class="d-flex flex-row justify-content-start align-items-start align-content-start">
+      <div class="avatar-container mx-2">
+        <img class="avatar avatar-sm scalable" src="{{environment.getAvatar(comment.authorId)}}">
+      </div>
+      <div class="d-flex flex-column justify-content-start align-items-start align-content-start">
+        <span class="username">{{comment.authorName}}<span [matTooltip]="comment.datePublished | simpleDate" class="date-published mx-2">{{comment.datePublished | dateFormat}}</span></span>
+        <pre>{{shortenComment(comment) | nextLiner:rowLength}}</pre>
+        <ng-container *ngIf="comment.content.length > maxLength && !comment.extended">
+          <a class="mx-5" (click)="resizeComment(comment)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...more</a>
+        </ng-container>
+        <ng-container *ngIf="comment.content.length > maxLength && comment.extended">
+          <a class="mx-5" (click)="resizeComment(comment)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...less</a>
+        </ng-container>
+      </div>
+    </span>
+  <ng-container *ngIf="user">
+    <div class="d-flex justify-content-center align-items-center align-content-center">
+      <button matTooltip="Reply" mat-icon-button (click)="toggleReplyMode()">
+        <mat-icon style="font-size: small" [ngClass]="replyMode ? 'clicked' : ''">reply</mat-icon>
+      </button>
+      <button [matMenuTriggerFor]="menu" appMouseEnter mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+        <mat-icon style="font-size: small">menu</mat-icon>
+      </button>
+      <mat-menu #menu = "matMenu">
+        <button (click)="report()" appMouseEnter mat-menu-item>
+          <mat-icon>flag</mat-icon>
+          <span>Report</span>
+        </button>
+        <button (click)="delete()" appMouseEnter mat-menu-item *ngIf="comment.authorId === user.id">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
+      </mat-menu>
+    </div>
+
+  </ng-container>
+</div>
+<div *ngIf="replyMode" class="d-flex flex-column justify-content-center align-content-center align-items-center">
+  <div class="mb-1 w-100" *ngIf="user" style="background-color: #e8e8e8; padding: 15px">
+    <form class="d-flex flex-row justify-content-between align-items-center align-content-center w-100" (ngSubmit)="addComment()" [formGroup]="commentForm">
+      <div class="d-flex flex-row justify-content-start align-content-start align-items-center">
+        <img class="avatar avatar-sm mx-1 scalable" [src]="environment.getAvatar(user.id)">
+        <textarea class="comment-input" style="resize: none" cols="100" rows="1" placeholder="Write your reply here..." type="text" name="content" [formControl]="commentForm.controls.content"></textarea>
+      </div>
+      <button [disabled]="commentForm.invalid" type="submit" class="btn btn-primary btn-sm">Submit</button>
+    </form>
+  </div>
+</div>
+<div class="mx-5" *ngFor="let reply of replies, index as i">
+    <span class="d-flex flex-row justify-content-start align-items-start align-content-start">
+      <div class="avatar-container mx-2">
+        <img class="avatar avatar-x-small scalable" src="{{environment.getAvatar(reply.authorId)}}">
+      </div>
+      <div class="d-flex flex-column justify-content-start align-items-start align-content-start">
+        <span class="username" style="font-size: 15px">{{reply.authorName}}<span [matTooltip]="reply.datePublished | simpleDate" class="date-published mx-2">{{reply.datePublished | dateFormat}}</span></span>
+        <pre>{{shortenComment(reply) | nextLiner:rowLength}}</pre>
+        <ng-container *ngIf="reply.content.length > maxLength && !reply.extended">
+          <a class="mx-5" (click)="resizeComment(reply)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...more</a>
+        </ng-container>
+        <ng-container *ngIf="reply.content.length > maxLength && reply.extended">
+          <a class="mx-5" (click)="resizeComment(reply)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...less</a>
+        </ng-container>
+      </div>
+    </span>
+</div>
+<div (click)="loadMore()" class=" mx-5 mb-5 d-flex flex-row justify-content-start align-content-center align-items-center w-100" *ngIf="totalReplies - replies.length > 0">
+  <mat-icon style="font-size: small">keyboard_arrow_down</mat-icon>
+  <a style="color: rgba(0,0,78,0.46); cursor: pointer"> load more</a>
+</div>

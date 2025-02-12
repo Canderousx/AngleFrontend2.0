@@ -16,40 +16,11 @@
       </form>
   </div>
   <mat-divider></mat-divider>
-  <div class="d-flex flex-row justify-content-start align-content-center align-items-center mt-2 mb-1">
-    <h2>{{"Comments: "+totalComments}}</h2>
+  <div class="d-flex flex-row justify-content-start align-content-center align-items-center mt-2 mb-5">
+    <h2>{{"Comments: "+totalCommentsWithReplies}}</h2>
   </div>
-  <div *ngFor="let comment of comments, index as i" class="comment my-5 d-flex flex-row justify-content-between w-100">
-    <span class="d-flex flex-row justify-content-start align-items-start align-content-start">
-      <div class="avatar-container mx-2">
-        <img class="avatar avatar-sm scalable" src="{{environment.getAvatar(comment.authorId)}}">
-      </div>
-      <div class="d-flex flex-column justify-content-start align-items-start align-content-start">
-        <span class="username">{{comment.authorName}}<span [matTooltip]="comment.datePublished | simpleDate" class="date-published mx-2">{{comment.datePublished | dateFormat}}</span></span>
-        <pre>{{shortenComment(comment) | nextLiner:rowLength}}</pre>
-        <ng-container *ngIf="comment.content.length > maxLength && !comment.extended">
-          <a class="mx-5" (click)="resizeComment(comment)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...more</a>
-        </ng-container>
-        <ng-container *ngIf="comment.content.length > maxLength && comment.extended">
-          <a class="mx-5" (click)="resizeComment(comment)" style="cursor: pointer;text-decoration: none; color: #8f8d8d" appMouseEnter>...less</a>
-        </ng-container>
-      </div>
-    </span>
-    <ng-container *ngIf="user">
-      <button [matMenuTriggerFor]="menu" appMouseEnter mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-        <mat-icon style="font-size: small">menu</mat-icon>
-      </button>
-      <mat-menu #menu = "matMenu">
-        <button (click)="report(comment.id)" appMouseEnter mat-menu-item>
-          <mat-icon>flag</mat-icon>
-          <span>Report</span>
-        </button>
-        <button (click)="delete(comment.id,i)" appMouseEnter mat-menu-item *ngIf="comment.authorId === user.id">
-          <mat-icon>delete</mat-icon>
-          <span>Delete</span>
-        </button>
-      </mat-menu>
-    </ng-container>
+  <div *ngFor="let comment of comments, index as i">
+    <app-single-comment [comment]="comment" [index]="i" (deleteEvent)="deleteEvent($event)"></app-single-comment>
   </div>
   <div *ngIf="comments.length < totalComments" class="d-flex justify-content-center align-items-center align-content-center">
     <button (click)="moreComments()" class="btn btn-primary btn-sm">Load more</button>
