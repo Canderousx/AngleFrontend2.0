@@ -47,7 +47,7 @@
     </form>
   </div>
 </div>
-<div class="mx-5" *ngFor="let reply of replies, index as i">
+<div class="mx-5 w-100" *ngFor="let reply of replies, index as i">
     <span class="d-flex flex-row justify-content-start align-items-start align-content-start">
       <div class="avatar-container mx-2">
         <img class="avatar avatar-x-small scalable" src="{{environment.getAvatar(reply.authorId)}}">

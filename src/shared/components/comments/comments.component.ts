@@ -131,10 +131,17 @@ export class CommentsComponent implements OnInit, OnChanges,OnDestroy{
           next: value => {
             this.toast.info(value.message)
             comment.datePublished = new Date().toString();
-            this.comments.unshift(comment);
-            this.totalComments++;
+            this.newCommentEvent(comment);
           }
         })
+    }
+  }
+
+  newCommentEvent(comment: Comment){
+    this.totalCommentsWithReplies++;
+    if(!comment.parentCommentId){
+      this.totalComments++;
+      this.comments.unshift(comment);
     }
   }
 

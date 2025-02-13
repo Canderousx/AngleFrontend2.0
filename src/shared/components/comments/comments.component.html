@@ -20,7 +20,7 @@
     <h2>{{"Comments: "+totalCommentsWithReplies}}</h2>
   </div>
   <div *ngFor="let comment of comments, index as i">
-    <app-single-comment [comment]="comment" [index]="i" (deleteEvent)="deleteEvent($event)"></app-single-comment>
+    <app-single-comment [comment]="comment" [index]="i" (deleteEvent)="deleteEvent($event)" (newCommentEvent)="newCommentEvent($event)"></app-single-comment>
   </div>
   <div *ngIf="comments.length < totalComments" class="d-flex justify-content-center align-items-center align-content-center">
     <button (click)="moreComments()" class="btn btn-primary btn-sm">Load more</button>

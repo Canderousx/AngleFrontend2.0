@@ -49,6 +49,7 @@ export class SingleCommentComponent implements OnInit,OnDestroy{
   @Input() comment!: Comment
   @Input() index!: number;
   @Output() deleteEvent = new EventEmitter<number>();
+  @Output() newCommentEvent = new EventEmitter<Comment>();
   replies: Comment[] = [];
   totalReplies = 0;
   authSub!: Subscription;
@@ -138,6 +139,7 @@ export class SingleCommentComponent implements OnInit,OnDestroy{
             comment.datePublished = new Date().toString();
             this.replies.unshift(comment)
             this.totalReplies++;
+            this.newCommentEvent.emit(comment)
           }
         })
     }
