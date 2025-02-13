@@ -137,7 +137,7 @@ export class SingleCommentComponent implements OnInit,OnDestroy{
             this.toggleReplyMode();
             this.toast.info(value.message)
             comment.datePublished = new Date().toString();
-            this.replies.unshift(comment)
+            this.replies.push(comment)
             this.totalReplies++;
             this.newCommentEvent.emit(comment)
           }
