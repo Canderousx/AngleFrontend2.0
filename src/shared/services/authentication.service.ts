@@ -78,8 +78,11 @@ export class AuthenticationService {
     localStorage.removeItem("session");
     this.loggedUser = null;
     this.currentUser.next(null);
-    this.router.navigate(['/'])
-    window.location.reload();
+    if(this.router.url === ''){
+      window.location.reload();
+    }else{
+      this.router.navigate(['/'])
+    }
   }
 
   logout(){
