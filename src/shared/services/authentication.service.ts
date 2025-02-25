@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, from, Subject, switchMap, tap} from "rxjs";
+import {BehaviorSubject, catchError, EMPTY, from, Subject, switchMap, tap} from "rxjs";
 import {environment} from "../../environments/environment.development";
 import {serverResponse} from "../../app/app.component";
 import {authRes} from "../../app/sign-in/sign-in.component";
@@ -46,7 +46,10 @@ export class AuthenticationService {
                 }else{
                   this.clearSessionData();
                 }
-
+              }),
+              catchError(err => {
+                this.clearSessionData();
+                throw err;
               })
             )
         })
@@ -75,6 +78,8 @@ export class AuthenticationService {
     localStorage.removeItem("session");
     this.loggedUser = null;
     this.currentUser.next(null);
+    this.router.navigate(['/'])
+    window.location.reload();
   }
 
   logout(){

@@ -1,7 +1,7 @@
 import {HttpErrorResponse, HttpEvent, HttpInterceptorFn} from '@angular/common/http';
 import {inject} from "@angular/core";
 import {AuthenticationService} from "../services/authentication.service";
-import {catchError, Observable, switchMap, tap, throwError} from "rxjs";
+import {catchError, EMPTY, Observable, switchMap, tap, throwError} from "rxjs";
 import {Router} from "@angular/router";
 import {ToastrService} from 'ngx-toastr';
 
@@ -25,12 +25,10 @@ export const authInterceptorInterceptor: HttpInterceptorFn = (req, next) => {
               setHeaders: { Authentication: `Bearer ${newToken}` }
             });
             return next(newReq);
-          } else {
-            router.navigate(['/signin']);
-            toast.error('Session timeout. You need to sign in to your account.');
+          }else {
             return throwError(() => new Error('Unauthorized refresh attempt'));
           }
-        }),
+        })
       );
     };
     if (authToken) {
